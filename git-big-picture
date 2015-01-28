@@ -890,6 +890,7 @@ class CommitGraph(object):
                 # replace first space with newline, so msg is below hash
                 commit_msg = commit_msg.replace(" ", "\\n", 1)
                 dot_file_lines.append('\t"%(ref)s"[label="%(label)s"];' % {
+                #debug(" doing something for %s, r: %s" % (sha_one, commit_msg.rstrip()))
                     'ref':sha_one,
                     'label':commit_msg.rstrip()})
         for child, self.parents in self.parents.items():
