@@ -874,13 +874,20 @@ class CommitGraph(object):
                 color = "/pastel13/%d" % case
                 yield (k, labels, color)
 
+        def commit_url(sha):
+            return ("https://github.com/GPUSPH/gpusph/commit/" + sha)
+
         dot_file_lines = ['digraph {']
         for sha_one, labels, color in label_gen():
-            dot_file_lines.append('\t"%(ref)s"[label="%(label)s", color="%(color)s", style=filled];' % {
+            # debug(" - %s -> %s" % (sha_one, labels))
+            # add interactive url if SVG
+            url = commit_url(sha_one)
+            dot_file_lines.append('\t"%(ref)s"[label="%(label)s", color="%(color)s", style=filled, URL="%(url)s"];' % {
                 'ref':sha_one,
                 'label':'\\n'.join(labels \
                     + (sha_ones_on_labels and [format_sha_one(sha_one),] or list())),
-                'color':color})
+                'color':color,
+                'url':url})
         for sha_one in self.dotdot:
             dot_file_lines.append('\t"%(ref)s"[label="..."];' % {'ref':sha_one})
         if (sha_one_digits is not None) and (sha_one_digits != 40):
@@ -889,10 +896,12 @@ class CommitGraph(object):
                 commit_msg = get_command_output(['git', 'log', '--pretty=oneline', '--abbrev-commit', '-1', sha_one])
                 # replace first space with newline, so msg is below hash
                 commit_msg = commit_msg.replace(" ", "\\n", 1)
-                dot_file_lines.append('\t"%(ref)s"[label="%(label)s"];' % {
-                #debug(" doing something for %s, r: %s" % (sha_one, commit_msg.rstrip()))
+                # add interactive url if SVG
+                url = commit_url(sha_one)
+                dot_file_lines.append('\t"%(ref)s"[label="%(label)s" URL="%(url)s"];' % {
                     'ref':sha_one,
-                    'label':commit_msg.rstrip()})
+                    'label':commit_msg.rstrip(),
+                    'url':url})
         for child, self.parents in self.parents.items():
             for p in self.parents:
                 dot_file_lines.append('\t"%(source)s" -> "%(target)s";' % {'source':child, 'target':p})
