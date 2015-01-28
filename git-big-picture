@@ -885,9 +885,11 @@ class CommitGraph(object):
             dot_file_lines.append('\t"%(ref)s"[label="..."];' % {'ref':sha_one})
         if (sha_one_digits is not None) and (sha_one_digits != 40):
             for sha_one in (e for e in self.parents.keys() if not (self._has_label(e) or e in self.dotdot)):
+                # get the first line of the commit message
+                commit_msg = get_command_output(['git', 'log', '--pretty=oneline', '--abbrev-commit', '-1', sha_one])
                 dot_file_lines.append('\t"%(ref)s"[label="%(label)s"];' % {
                     'ref':sha_one,
-                    'label':format_sha_one(sha_one)})
+                    'label':commit_msg.rstrip()})
         for child, self.parents in self.parents.items():
             for p in self.parents:
                 dot_file_lines.append('\t"%(source)s" -> "%(target)s";' % {'source':child, 'target':p})
