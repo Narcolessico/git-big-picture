@@ -552,6 +552,41 @@ class Git(object):
         """
 
         output = self("git for-each-ref --format=\"['%(objectname)', '%(*objectname)',  '%(objecttype)', '%(refname)']\"")
+
+        # --- Filtering out --------------------------
+
+        # emulate grep
+        def grep(l,s):
+            return [i for i in l if s in i]
+
+        # emulate multiple greps in pipeline: grep lines containing at least one word in l2
+        def multigrep(l,l2):
+            newout = []
+            for i in l:
+                for j in l2:
+                    if j in i:
+                        newout.append(i)
+            return newout
+
+        # emulate grep -v (exclude)
+        def grepv(l,s):
+            return [i for i in l if not s in i]
+
+        # emulate multiple "grep -v"s in pipeline: grep lines not containing any of the words in l2
+        def multigrepv(l,l2):
+            newout = l
+            for i in l2:
+                newout = grepv(newout, i)
+            return newout
+
+        # thin out the branches of GPUSPH dev repos
+        #output = multigrep(output,['multisa','candidate', 'next', 'master', 'xproblem'])
+        #output = multigrepv(output,['bilotta','dbg', 'next_sa', 'kgamiel','multicandidate'])
+        #output = grep(output,'multisa')
+        #output = grepv(output,'multi')
+
+        # --------------------------------------------
+
         lbranch_prefix = 'refs/heads/'
         rbranch_prefix = 'refs/remotes/'
         tag_prefix = 'refs/tags/'
