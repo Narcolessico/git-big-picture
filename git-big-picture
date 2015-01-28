@@ -32,6 +32,9 @@ import subprocess
 import sys
 import tempfile
 
+# for date filtering of merge commits
+from datetime import datetime
+
 __version__ = '1.0.0-dev'
 __docformat__ = "restructuredtext"
 
@@ -789,12 +792,32 @@ class CommitGraph(object):
             interesting.extend(self.tags.keys())
         if roots:
             interesting.extend(self.roots)
-        if merges:
-            interesting.extend(self.merges)
+        # Will extend with merges after date filtering
+        #if merges:
+        #    interesting.extend(self.merges)
         if bifurcations:
             interesting.extend(self.bifurcations)
         if additional:
             interesting.extend(additional)
+
+        # -------------------------------------------------
+        # Filter merge commits by date
+        filter_by_time = True									# < --- activate here
+        sincedate = datetime.strptime('2014-07-14', '%Y-%m-%d') # < --- insert DATE here
+        if filter_by_time:
+            recent_merges = []
+            for c in self.merges:
+                cdatestr = get_command_output(['git', 'log', '--format=%ad', '--date=short', c, '-1'])
+                cdate = datetime.strptime(cdatestr.rstrip(), '%Y-%m-%d')
+                if cdate > sincedate:
+                    recent_merges.append(c)
+
+            if merges:
+                interesting.extend(recent_merges)
+        else:
+            if merges:
+                interesting.extend(self.merges)
+        # -------------------------------------------------
 
         reachable_interesting_parents = dict()
         # for everything that we are interested in
