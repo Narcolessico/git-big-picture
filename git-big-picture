@@ -887,6 +887,8 @@ class CommitGraph(object):
             for sha_one in (e for e in self.parents.keys() if not (self._has_label(e) or e in self.dotdot)):
                 # get the first line of the commit message
                 commit_msg = get_command_output(['git', 'log', '--pretty=oneline', '--abbrev-commit', '-1', sha_one])
+                # replace first space with newline, so msg is below hash
+                commit_msg = commit_msg.replace(" ", "\\n", 1)
                 dot_file_lines.append('\t"%(ref)s"[label="%(label)s"];' % {
                     'ref':sha_one,
                     'label':commit_msg.rstrip()})
