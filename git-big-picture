@@ -896,6 +896,8 @@ class CommitGraph(object):
                 commit_msg = get_command_output(['git', 'log', '--pretty=oneline', '--abbrev-commit', '-1', sha_one])
                 # replace first space with newline, so msg is below hash
                 commit_msg = commit_msg.replace(" ", "\\n", 1)
+                # escape double quotes to avoid messing with dot
+                commit_msg = commit_msg.replace('"', '\\"')
                 # add interactive url if SVG
                 url = commit_url(sha_one)
                 dot_file_lines.append('\t"%(ref)s"[label="%(label)s" URL="%(url)s"];' % {
